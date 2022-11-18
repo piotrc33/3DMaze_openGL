@@ -1,2 +1,3 @@
+rm labirynt3D;
 make;
-./labirynt3D 1 10;
+./labirynt3D;
