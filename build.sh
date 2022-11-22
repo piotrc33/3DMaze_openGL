@@ -1,3 +1,3 @@
-rm labirynt3D;
+rm main;
 make;
-./labirynt3D;
+./main;
