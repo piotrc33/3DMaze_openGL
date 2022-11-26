@@ -29,19 +29,22 @@ void Win::KeyCB(int key, int scancode, int action, int mods)
 void Win::MainLoop(int N = 10)
 {
   ViewportOne(0, 0, wd, ht);
-  Triangle trian(0.5f, -0.3f, 0.5f);
-  trian.rotate(glm::radians(45.0f));
 
   double limit = 1 - 1.0/N;
-  double triWidth = trian.getDx();
+  float offset = 2.0/N;
+  float triSide = (offset*3)/(2.0*sqrt(3));
 
-  Triangle *obstacleTriangles[N*N*N];
+  Triangle *obstacleTriangles[N*N*N - 1];
   int i = 0;
   for(int x = 0; x < N; x++) {
     for(int y = 0; y < N; y++) {
       for(int z = 0; z < N; z++) {
-        Triangle *l = new Triangle(-limit + x*(triWidth + 0.00001)*2, -limit + y*(triWidth + 0.00001)*2, -limit + z*(triWidth + 0.00001)*2);
+        if(x == 0 && y == 0 && z == 0) continue; // leaving first space free
+        Triangle *l = new Triangle(-limit + x*(offset + 0.00001), -limit + y*(offset + 0.00001), -limit + z*(offset + 0.00001), triSide);
         obstacleTriangles[i] = l;
+        // l->addPerspective(wd, ht);
+        l->rotate(rand() % 10);
+        l->translate();
         i++;
       }
     }

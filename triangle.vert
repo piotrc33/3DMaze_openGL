@@ -16,10 +16,7 @@ void main(void) {
   green = (green + 1) / 2;
   float blue = (v1.z + v2.z + v3.z)/3;
   blue = (blue + 1) / 2;
-  const vec4 colors[]    = vec4[3](vec4(red, green, blue, 1.0),
-                                    vec4(red, green, blue, 1.0),
-                                    vec4(red, green, blue, 1.0));
 
-  vcolor      = colors[gl_VertexID];
+  vcolor      = vec4(red, green, blue, 1.0);
   gl_Position = vec4(vertices[gl_VertexID], 1.0); 
 }

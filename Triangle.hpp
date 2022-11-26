@@ -3,13 +3,15 @@
 class Triangle : public AGLDrawable
 {
 public:
-  Triangle(float cx, float cy, float cz) : AGLDrawable(0), cx(cx), cy(cy), cz(cz)
+  Triangle(float cx, float cy, float cz, float side) : AGLDrawable(0), cx(cx), cy(cy), cz(cz), side(side)
   {
 
+    h = (side * sqrt(3)) / 2.0;
     setStartingPos();
-    rotate(rand() % 10);
-    translate();
+    // addPerspective(wd, ht);
+
     setShaders();
+    // std::cout << h << "\n";
   }
   void setShaders()
   {
@@ -27,9 +29,10 @@ public:
 
   void setStartingPos() {
     // wzory z trójkąta równobocznego
-    dx = sqrt(((2.0 * h) / 3) * ((2.0 * h) / 3) - (h / 3) * (h / 3));
-    v1 = {-dx,  -h / 3, 0.0f, 1.0f};
-    v2 = { dx,  -h / 3, 0.0f, 1.0f};
+    // dx = sqrt(((2.0 * h) / 3) * ((2.0 * h) / 3) - (h / 3) * (h / 3)); // bok trójkąta
+    float x1 = 2.0*h/3 * cos(M_PI/6);
+    v1 = {-x1,  -h / 3, 0.0f, 1.0f};
+    v2 = { x1,  -h / 3, 0.0f, 1.0f};
     v3 = { 0.0f, 2 * h / 3, 0.0f, 1.0f};
   }
 
@@ -50,8 +53,19 @@ public:
     v3 = rot * v3;
   }
 
+  void addPerspective(int width, int height) {
+    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width/(float)height, 0.0f, 100.0f);
+    v1 = proj * v1;
+    v2 = proj * v2;
+    v3 = proj * v3;
+  }
+
   float getDx() {
     return dx;
+  }
+
+  float getHeight() {
+    return h;
   }
 
 private:
@@ -64,6 +78,7 @@ private:
   glm::vec4 v2;
   glm::vec4 v3;
   glm::mat4 translation;
-  float h = 0.3f;
+  float h;
   float dx;
+  float side;
 };
