@@ -9,10 +9,9 @@ class Triangle : public AGLDrawable
 public:
   Triangle(float cx, float cy, float cz, float side) : AGLDrawable(0), cx(cx), cy(cy), cz(cz), side(side)
   {
-
     h = (side * sqrt(3)) / 2.0;
     angle = rand() % 360;
-    std::cout << angle << "\n";
+    // std::cout << angle << "\n";
     angleRatios = glm::vec3((float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX);
     setStartingPos();
     setShaders();
@@ -26,7 +25,7 @@ public:
   {
     bindBuffers();
 
-    glBufferData(GL_ARRAY_BUFFER, 3 * 3 * sizeof(float), positions, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 3 * 3 * sizeof(float), &positions[0], GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(
         0,        // attribute 0, must match the layout in the shader.
@@ -60,7 +59,7 @@ public:
     // glUniform3f(1, v1.x, v1.y, v1.z);
     // glUniform3f(2, v2.x, v2.y, v2.z);
     // glUniform3f(3, v3.x, v3.y, v3.z);
-    
+
     glDrawArrays(GL_TRIANGLES, 0, 3);
   }
 
@@ -72,14 +71,12 @@ public:
     v2 = { x1,  -h / 3, 0.0f, 1.0f};
     v3 = { 0.0f, 2 * h / 3, 0.0f, 1.0f};
 
-    float arr[9] = {
-      -x1, -h / 3, 0.0f,
-       x1,  -h / 3, 0.0f,
-       0.0f, 2 * h / 3, 0.0f
-    };
-    for(unsigned int i = 0; i < 9; i++) {
-      positions[i] = arr[i];
-    }
+
+    positions = {
+        -x1, -h / 3, 0.0f,
+        x1,  -h / 3, 0.0f,
+        0.0f, 2 * h / 3, 0.0f
+      };
   }
 
   void translate() {
@@ -127,7 +124,7 @@ private:
   glm::vec4 v1;
   glm::vec4 v2;
   glm::vec4 v3;
-  float positions[9];
+  std::vector<float> positions;
   float h;
   float dx;
   float side;

@@ -1,85 +1,102 @@
 class Sphere : public AGLDrawable
 {
 public:
-  Sphere(float cx, float cy, float cz, float side) : AGLDrawable(0), cx(cx), cy(cy), cz(cz), side(side)
+  Sphere(float cx, float cy, float cz, float r) : AGLDrawable(0), cx(cx), cy(cy), cz(cz), r(r)
   {
-
-    h = (side * sqrt(3)) / 2.0;
-    setStartingPos();
-    // addPerspective(wd, ht);
-
+    
     setShaders();
-    // std::cout << h << "\n";
+    setBuffers();
   }
+
   void setShaders()
   {
-    compileShadersFromFile("triangle.vert", "triangle.frag");
+    compileShadersFromFile("sphere.vert", "sphere.frag");
   }
+
   void draw()
   {
     bindProgram();
-    bindBuffers(); 
-    glUniform3f(1, v1.x, v1.y, v1.z);
-    glUniform3f(2, v2.x, v2.y, v2.z);
-    glUniform3f(3, v3.x, v3.y, v3.z);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    bindBuffers();
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
   }
 
-  void setStartingPos() {
-    // wzory z trójkąta równobocznego
-    // dx = sqrt(((2.0 * h) / 3) * ((2.0 * h) / 3) - (h / 3) * (h / 3)); // bok trójkąta
-    float x1 = 2.0*h/3 * cos(M_PI/6);
-    v1 = {-x1,  -h / 3, 0.0f, 1.0f};
-    v2 = { x1,  -h / 3, 0.0f, 1.0f};
-    v3 = { 0.0f, 2 * h / 3, 0.0f, 1.0f};
-  }
+void setBuffers() {
+    // By default the sphere center will be in (0, 0, 0)
+    bindBuffers();
+    const int stackCount = 15;
+    const int sectorCount = 30;
+    const float PI = M_PI;
 
-  void translate() {
-    translation = glm::mat4(1.0f);
-    translation = glm::translate(translation, glm::vec3(cx, cy, cz));
-    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)800/(float)600, 0.1f, 100.0f);
-    v1 = proj * translation * v1;
-    v2 = proj * translation * v2;
-    v3 = proj * translation * v3;
-  }
+    float x, y, z, xy;                      // vertex position
+    float nx, ny, nz, lengthInv = 1.0f / r; // vertex normal
+    float s, t;                             // vertex texCoord
 
-  void rotate(float angle) {
-    glm::mat4 rot = glm::mat4(1.0f);
-    // rotating only in z axis
-    rot = glm::rotate(rot, glm::radians(angle), glm::vec3(0.0, 1.0, 0.0));
-    v1 = rot * v1;
-    v2 = rot * v2;
-    v3 = rot * v3;
-    // addPerspective(800, 600);
-  }
+    float sectorStep = 2 * PI / sectorCount;
+    float stackStep = PI / stackCount;
+    float sectorAngle, stackAngle;
 
-  void addPerspective(int width, int height) {
-    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width/(float)height, 0.1f, 100.0f);
-    // std::cout << proj << "\n";
-    v1 = proj * v1;
-    v2 = proj * v2;
-    v3 = proj * v3;
-  }
+    for (int i = 0; i <= stackCount; ++i)
+    {
+      stackAngle = PI / 2 - i * stackStep; // starting from pi/2 to -pi/2
+      xy = r * cosf(stackAngle);           // r * cos(u)
+      z = r * sinf(stackAngle);            // r * sin(u)
 
-  float getDx() {
-    return dx;
-  }
+      // add (sectorCount+1) vertices per stack
+      // the first and last vertices have same position and normal, but different tex coords
+      for (int j = 0; j <= sectorCount; ++j)
+      {
+        sectorAngle = j * sectorStep; // starting from 0 to 2pi
 
-  float getHeight() {
-    return h;
-  }
+        // vertex position (x, y, z)
+        x = xy * cosf(sectorAngle); // r * cos(u) * cos(v)
+        y = xy * sinf(sectorAngle); // r * cos(u) * sin(v)
+        vertices.push_back(x);
+        vertices.push_back(y);
+        vertices.push_back(z);
+      }
+    }
+
+    int k1, k2;
+    for (int i = 0; i < stackCount; ++i)
+    {
+      k1 = i * (sectorCount + 1); // beginning of current stack
+      k2 = k1 + sectorCount + 1;  // beginning of next stack
+
+      for (int j = 0; j < sectorCount; ++j, ++k1, ++k2)
+      {
+        // 2 triangles per sector excluding first and last stacks
+        // k1 => k2 => k1+1
+        if (i != 0)
+        {
+          indices.push_back(k1);
+          indices.push_back(k2);
+          indices.push_back(k1 + 1);
+        }
+
+        // k1+1 => k2 => k2+1
+        if (i != (stackCount - 1))
+        {
+          indices.push_back(k1 + 1);
+          indices.push_back(k2);
+          indices.push_back(k2 + 1);
+        }
+      }
+    }
+
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertices.size() * sizeof(int), &indices[0], GL_STATIC_DRAW);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+}
 
 private:
   // center coordinates
   float cx;
   float cy;
   float cz;
-  // vertices
-  glm::vec4 v1;
-  glm::vec4 v2;
-  glm::vec4 v3;
-  glm::mat4 translation;
-  float h;
-  float dx;
-  float side;
+
+  float r; // radius
+  std::vector<float> vertices;
+  std::vector<int> indices;
 };

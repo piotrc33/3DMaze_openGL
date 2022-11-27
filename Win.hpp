@@ -1,5 +1,6 @@
 #include <AGL3Window.hpp>
 #include <Triangle.hpp>
+#include <EquilateralTriangle.hpp>
 #include <Sphere.hpp>
 #include <glm/glm.hpp>
 
@@ -35,8 +36,9 @@ void Win::MainLoop(int N = 10)
   float offset = 2.0/N;
   float triSide = (offset*3)/(2.0*sqrt(3));
 
-  // std::cout << triSide;
-  Triangle trian(0.0f, 0.0f, 0.0f, triSide);
+  Triangle trian(0.0f, 0.5f, -0.1f, triSide);
+  Sphere ball(0.5f, 0.5f, -0.5f, 0.2);
+  // trian.setStartingPos();
   // trian.translate();
   // trian.addPerspective(wd, ht);
   // trian.rotate(45.0);
@@ -67,6 +69,7 @@ void Win::MainLoop(int N = 10)
     // trian.rotate(1.0f);
     // trian.addPerspective(wd, ht);
     trian.draw();
+    ball.draw();
     AGLErrors("main-afterdraw");
 
     glfwSwapBuffers(win()); // =============================   Swap buffers
