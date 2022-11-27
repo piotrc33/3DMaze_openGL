@@ -1,5 +1,6 @@
 #include <AGL3Window.hpp>
 #include <Triangle.hpp>
+#include <Sphere.hpp>
 #include <glm/glm.hpp>
 
 class Win : public AGLWindow
@@ -34,21 +35,25 @@ void Win::MainLoop(int N = 10)
   float offset = 2.0/N;
   float triSide = (offset*3)/(2.0*sqrt(3));
 
-  Triangle *obstacleTriangles[N*N*N - 1];
-  int i = 0;
-  for(int x = 0; x < N; x++) {
-    for(int y = 0; y < N; y++) {
-      for(int z = 0; z < N; z++) {
-        if(x == 0 && y == 0 && z == 0) continue; // leaving first space free
-        Triangle *l = new Triangle(-limit + x*(offset + 0.00001), -limit + y*(offset + 0.00001), -limit + z*(offset + 0.00001), triSide);
-        obstacleTriangles[i] = l;
-        // l->addPerspective(wd, ht);
-        l->rotate(rand() % 10);
-        l->translate();
-        i++;
-      }
-    }
-  }
+  // std::cout << triSide;
+  Triangle trian(0.0f, 0.0f, 0.0f, triSide);
+  // trian.translate();
+  // trian.addPerspective(wd, ht);
+  // trian.rotate(45.0);
+
+  // Triangle *obstacleTriangles[N*N*N - 1];
+  // int i = 0;
+  // for(int x = 0; x < N; x++) {
+  //   for(int y = 0; y < N; y++) {
+  //     for(int z = 0; z < N; z++) {
+  //       if(x == 0 && y == 0 && z == 0) continue; // leaving first space free
+  //       Triangle *l = new Triangle(-limit + x*(offset), -limit + y*(offset), limit - z*(offset), triSide);
+  //       // std::cout << limit - z*(offset) << "\n";
+  //       obstacleTriangles[i] = l;
+  //       i++;
+  //     }
+  //   }
+  // }
 
   do
   {
@@ -56,9 +61,12 @@ void Win::MainLoop(int N = 10)
 
     AGLErrors("main-loopbegin");
     // =====================================================        Drawing
-    for(auto &tri : obstacleTriangles) {
-      tri->draw();
-      }
+    // for(auto &tri : obstacleTriangles) {
+    //   tri->draw();
+    // }
+    // trian.rotate(1.0f);
+    // trian.addPerspective(wd, ht);
+    trian.draw();
     AGLErrors("main-afterdraw");
 
     glfwSwapBuffers(win()); // =============================   Swap buffers
