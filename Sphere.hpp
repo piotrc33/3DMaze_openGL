@@ -3,7 +3,6 @@ class Sphere : public AGLDrawable
 public:
   Sphere(float cx, float cy, float cz, float r) : AGLDrawable(0), cx(cx), cy(cy), cz(cz), r(r)
   {
-    
     setShaders();
     setBuffers();
   }
@@ -13,14 +12,8 @@ public:
     compileShadersFromFile("sphere.vert", "sphere.frag");
   }
 
-  void draw()
+  void setBuffers()
   {
-    bindProgram();
-    bindBuffers();
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-  }
-
-void setBuffers() {
     // By default the sphere center will be in (0, 0, 0)
     bindBuffers();
     const int stackCount = 15;
@@ -38,6 +31,7 @@ void setBuffers() {
     for (int i = 0; i <= stackCount; ++i)
     {
       stackAngle = PI / 2 - i * stackStep; // starting from pi/2 to -pi/2
+
       xy = r * cosf(stackAngle);           // r * cos(u)
       z = r * sinf(stackAngle);            // r * sin(u)
 
@@ -46,8 +40,9 @@ void setBuffers() {
       for (int j = 0; j <= sectorCount; ++j)
       {
         sectorAngle = j * sectorStep; // starting from 0 to 2pi
+        // std::cout << "sector " << sectorAngle << "\n";
 
-        // vertex position (x, y, z)
+        // vertex position (x, y, z) with added center of sphere coordinates
         x = xy * cosf(sectorAngle); // r * cos(u) * cos(v)
         y = xy * sinf(sectorAngle); // r * cos(u) * sin(v)
         vertices.push_back(x);
@@ -83,12 +78,41 @@ void setBuffers() {
       }
     }
 
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertices.size() * sizeof(int), &indices[0], GL_STATIC_DRAW);
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-}
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(int), &indices[0], GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+  }
+
+  void updatePos(glm::vec3 newPos) {
+    cx = newPos.x;
+    cy = newPos.y;
+    cz = newPos.z;
+  }
+
+  void draw(glm::mat4 camera)
+  {
+    bindProgram();
+    bindBuffers();
+
+    glm::mat4 translation = glm::mat4(1.0f);
+    translation = glm::translate(translation, glm::vec3(cx, cy, cz));
+
+    glm::mat4 projection = glm::mat4(1.0f);
+    // The range is from -0.1 to -100.0 on z axis to render
+    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+
+    GLint projection_loc = glGetUniformLocation(p(), "projection");
+    GLint camera_loc = glGetUniformLocation(p(), "camera");
+    GLint translation_loc = glGetUniformLocation(p(), "translation");
+
+    glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(camera_loc, 1, GL_FALSE, glm::value_ptr(camera));
+    glUniformMatrix4fv(translation_loc, 1, GL_FALSE, glm::value_ptr(translation));
+
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+  }
 
 private:
   // center coordinates
@@ -99,4 +123,5 @@ private:
   float r; // radius
   std::vector<float> vertices;
   std::vector<int> indices;
+  float offsetZ = 1.5f;
 };
