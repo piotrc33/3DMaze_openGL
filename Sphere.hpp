@@ -9,7 +9,7 @@ public:
 
   void setShaders()
   {
-    compileShadersFromFile("sphere.vert", "sphere.frag");
+    compileShadersFromFile("shaders/sphere.vert", "shaders/sphere.frag");
   }
 
   void setBuffers()
@@ -32,8 +32,8 @@ public:
     {
       stackAngle = PI / 2 - i * stackStep; // starting from pi/2 to -pi/2
 
-      xy = r * cosf(stackAngle);           // r * cos(u)
-      z = r * sinf(stackAngle);            // r * sin(u)
+      xy = r * cosf(stackAngle); // r * cos(u)
+      z = r * sinf(stackAngle);  // r * sin(u)
 
       // add (sectorCount+1) vertices per stack
       // the first and last vertices have same position and normal, but different tex coords
@@ -85,13 +85,14 @@ public:
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
   }
 
-  void updatePos(glm::vec3 newPos) {
+  void updatePos(glm::vec3 newPos)
+  {
     cx = newPos.x;
     cy = newPos.y;
     cz = newPos.z;
   }
 
-  void draw(glm::mat4 camera)
+  void draw(glm::mat4 camera, glm::mat4 projection)
   {
     bindProgram();
     bindBuffers();
@@ -99,9 +100,9 @@ public:
     glm::mat4 translation = glm::mat4(1.0f);
     translation = glm::translate(translation, glm::vec3(cx, cy, cz));
 
-    glm::mat4 projection = glm::mat4(1.0f);
-    // The range is from -0.1 to -100.0 on z axis to render
-    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+    // glm::mat4 projection = glm::mat4(1.0f);
+    // // The range is from -0.1 to -100.0 on z axis to render
+    // projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
     GLint projection_loc = glGetUniformLocation(p(), "projection");
     GLint camera_loc = glGetUniformLocation(p(), "camera");
@@ -113,6 +114,49 @@ public:
 
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
   }
+
+  float getCx() {
+    return cx;
+  }
+
+  float getDistanceToPlane(glm::vec3 planeNormal, glm::vec3 p0)
+  { // p0 is plane anchor point
+    glm::vec3 B = {
+        cx - p0.x,
+        cy - p0.y,
+        cz - p0.z,
+    }; // vector between sphere center and anchor point
+
+    return glm::dot(planeNormal, B) / glm::length(planeNormal);
+  }
+
+  glm::vec3 getClosestPointOnPlane(glm::vec3 planeNormal, float d)
+  {
+    glm::vec3 center = {cx,
+                        cy,
+                        cz};
+    d = -d;
+    planeNormal = planeNormal / glm::length(planeNormal);
+    // glm::vec3 v =  planeNormal * d;
+    // std::cout << v.x << " " << v.y << " " << v.z << " \n";
+    return planeNormal * d + center;
+  }
+
+  float getR() {
+    return r;
+  }
+
+  // float getDistanceToTriangle(Triangle t) {
+  //   // glm::vec3 P = getClosestPointOnPlane();
+  //   // float d1 = pitagoras
+  //   // float d2 = distanceFromPointToTriangle(P, t)
+  //   // float D = pitagoras od d1 i d2
+  //   // return D;
+  // }
+
+  // bool checkCollision() {
+
+  // }
 
 private:
   // center coordinates

@@ -2,7 +2,7 @@
 class EquilateralTriangle : public Triangle
 {
 public:
-  EquilateralTriangle(float cx, float cy, float cz, float side) : Triangle(cx, cy, cz, side)
+  EquilateralTriangle(float cx, float cy, float cz, float side, int id) : Triangle(cx, cy, cz, side, id)
   {
     h = (side * sqrt(3)) / 2.0;
     angle = rand() % 360;
