@@ -140,8 +140,13 @@ void Win::MainLoop(int N = 10)
       tri->draw(camera, projection);
       
       bool col = tri->checkCollision(&ball);
-      if(col)
-        std::cout << "Collision! " << glfwGetTime() << "\n";
+      if(col) {
+        if(tri->getId() == 998) {
+          std::cout << "You won! Your time: " << glfwGetTime() << " seconds" "\n";
+        }
+        else
+          std::cout << "Collision! " << "\n";
+      }
     }
     // trian.draw(camera);
 
