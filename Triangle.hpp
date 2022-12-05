@@ -1,9 +1,6 @@
 #include <AGL3Drawable.hpp>
 #include <Sphere.hpp>
 
-// chyba żeby zrobić jak należy to trzeba wierzchołki do buffera przekazywać
-// przykład tego możńa w MyCross znaleźć
-
 class Triangle : public AGLDrawable
 {
 public:
@@ -107,19 +104,10 @@ public:
 
     v1 = {v14.x, v14.y, v14.z};
     v2 = {v24.x, v24.y, v24.z};
-
-    // v1 = {positions[0],
-    //       positions[1],
-    //       positions[2]};
-
-    // v2 = {positions[3],
-    //       positions[4],
-    //       positions[5]};
   }
 
   glm::vec3 getNormalVec()
   {
-    // std::cout << v1.x << " " << v1.y << " " << v1.z << " \n";
     glm::vec3 n = glm::cross(v1, v2);
     return n;
   }
@@ -165,9 +153,6 @@ public:
     }
 
     return ((x2 - x1) * (y1 - p.y) - (x1 - p.x) * (y2 - y1)) / side;
-
-    // return 0.0f;
-    // return ((y2 - y1) * p.x - (x2 - x1) * p.y + x2 * y1 - y2 * x1) / side;
   }
 
   float getDistanceToPoint(glm::vec3 p) {
@@ -180,9 +165,7 @@ public:
 
     // parsing to vec4 to be able to perform transformation with mat4
     glm::vec4 p4 = {p, 1.0f};
-    p4 = rotation * translation * p4; // when going back inverse order is required?
-
-    // std::cout << "rotated: " << p4.x << " " << p4.y << " " << p4.z << " \n";
+    p4 = rotation * translation * p4; // when going back inverse order is required
 
     // vertices on 2D starting plane
     glm::vec2 A = { positions[0],
@@ -197,13 +180,12 @@ public:
     float AC = getDistanceFromSideToPoint(A.x, A.y, C.x, C.y, p4);
     float BC = getDistanceFromSideToPoint(B.x, B.y, C.x, C.y, p4);
 
-    // std::cout << AB << " " << AC << " " << BC << " \n";
-
     // empiric checking if point is inside triangle
     // for this combination point is in triangle
     if(AB < 0.0f && AC > 0.0f && BC < 0.0f) {
       return 0.0f;
     } else {
+      // returning smallest distance
       return std::min(std::abs(AB), std::min(std::abs(AC), std::abs(BC)));
     }
   }
@@ -215,6 +197,7 @@ public:
     glm::vec3 p = ball->getClosestPointOnPlane(normal, d1);
     float d2 = getDistanceToPoint(p);
 
+    // calculating final closest distance to triangle
     float D = sqrt(d1 * d1 + d2 * d2);
     float R = ball->getR();
 

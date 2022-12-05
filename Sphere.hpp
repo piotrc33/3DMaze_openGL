@@ -100,10 +100,6 @@ public:
     glm::mat4 translation = glm::mat4(1.0f);
     translation = glm::translate(translation, glm::vec3(cx, cy, cz));
 
-    // glm::mat4 projection = glm::mat4(1.0f);
-    // // The range is from -0.1 to -100.0 on z axis to render
-    // projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-
     GLint projection_loc = glGetUniformLocation(p(), "projection");
     GLint camera_loc = glGetUniformLocation(p(), "camera");
     GLint translation_loc = glGetUniformLocation(p(), "translation");
@@ -137,26 +133,13 @@ public:
                         cz};
     d = -d;
     planeNormal = planeNormal / glm::length(planeNormal);
-    // glm::vec3 v =  planeNormal * d;
-    // std::cout << v.x << " " << v.y << " " << v.z << " \n";
+    // having distance, normal and center we can calculate point coordinates
     return planeNormal * d + center;
   }
 
   float getR() {
     return r;
   }
-
-  // float getDistanceToTriangle(Triangle t) {
-  //   // glm::vec3 P = getClosestPointOnPlane();
-  //   // float d1 = pitagoras
-  //   // float d2 = distanceFromPointToTriangle(P, t)
-  //   // float D = pitagoras od d1 i d2
-  //   // return D;
-  // }
-
-  // bool checkCollision() {
-
-  // }
 
 private:
   // center coordinates

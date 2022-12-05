@@ -2,7 +2,6 @@
 #include <Triangle.hpp>
 #include <Rectangle.hpp>
 #include <EquilateralTriangle.hpp>
-// #include <Sphere.hpp>
 #include <glm/glm.hpp>
 
 class Win : public AGLWindow
@@ -53,7 +52,6 @@ void Win::MainLoop(int N = 10)
   // glm::vec3 cameraPos = {-2.0297f, -0.669669f, -0.637569f};
   glm::vec3 cameraUp = {0.0f, 1.0f, 0.0f};
   glm::vec3 cameraFront = {0.0f, 0.0f, -1.0f}; // target
-  // glm::vec3 cameraFront = {0.998021f, -0.052336f, -0.0348517f}; // target
   float cameraSpeed = 0.01;
 
   // camera angles, yaw = around y axis, pitch ar. x axis
@@ -68,7 +66,6 @@ void Win::MainLoop(int N = 10)
   // };
   glm::vec3 ballPos = cameraPos;
 
-  // Triangle trian(-0.6f, -0.3f, 0.0f, triSide);
   Sphere ball(ballPos.x, ballPos.y, ballPos.z, triSide / 4);
   Rectangle rect1;
 
@@ -83,17 +80,9 @@ void Win::MainLoop(int N = 10)
       {
         if (x == 0 && y == 0 && z == 0)
           continue; // leaving first space free
-
-        if (i == 459)
-        {
-          Triangle *l = new Triangle(-limit + x * (offset), -limit + y * (offset), limit - z * (offset), triSide*5, i);
-          obstacleTriangles[i] = l;
-        }
-        else
-        {
-          Triangle *l = new Triangle(-limit + x * (offset), -limit + y * (offset), limit - z * (offset), triSide, i);
-          obstacleTriangles[i] = l;
-        }
+        
+        Triangle *l = new Triangle(-limit + x * (offset), -limit + y * (offset), limit - z * (offset), triSide, i);
+        obstacleTriangles[i] = l;
 
         i++;
       }
@@ -104,8 +93,6 @@ void Win::MainLoop(int N = 10)
   {
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // std::cout << "length: " << length(glm::vec2(1.0f, 1.0f));
 
     cameraFront.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
     cameraFront.y = sin(glm::radians(pitch));
@@ -136,7 +123,6 @@ void Win::MainLoop(int N = 10)
     // =====================================================        Drawing
     for (auto &tri : obstacleTriangles)
     {
-      // tri->setV1V2();
       tri->draw(camera, projection);
       
       bool col = tri->checkCollision(&ball);
@@ -148,36 +134,6 @@ void Win::MainLoop(int N = 10)
           std::cout << "Collision! " << "\n";
       }
     }
-    // trian.draw(camera);
-
-
-    // ******** CHECKING COLLISION ***********
-    Triangle *t = obstacleTriangles[459];
-
-    // glm::vec3 normal = t->getNormalVec();
-    // glm::vec3 vc = t->getCenterPoint();
-    // float d1 = ball.getDistanceToPlane(normal, vc);
-    // glm::vec3 p = ball.getClosestPointOnPlane(normal, d1);
-    // float d2 = t->getDistanceToPoint(p);
-
-    // float D = sqrt(d1*d1 + d2*d2);
-
-    // float R = ball.getR();
-    // // std::cout << d2 << "\n";
-    // if(D < R) {
-    //   // std::cout << d1 << " " << d2 << " " << D << "\n";
-    //   std::cout << "Collision! " << glfwGetTime() << "\n";
-    // }
-    // std::cout << "original: " << p.x << " " << p.y << " " << p.z << " \n";
-
-    
-
-    // Sphere ball2(p.x, p.y, p.z, triSide / 8);
-    // ball2.draw(camera, projection);
-
-    // bool col = t->checkCollision(&ball);
-    // if (col)
-    //   std::cout << "Collision! " << glfwGetTime() << "\n";
 
     rect1.draw(camera, projection);
     ball.draw(camera, projection);
