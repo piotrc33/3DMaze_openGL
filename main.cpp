@@ -14,6 +14,8 @@ struct Point
   float z;
 };
 
+
+
 int main(int argc, char *argv[])
 {
   Win win;
